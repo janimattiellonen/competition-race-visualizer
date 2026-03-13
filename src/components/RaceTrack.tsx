@@ -8,6 +8,7 @@ interface RaceTrackProps {
   playerPositions: number[]
   playerCumulativeDiffs: number[]
   playerTotalStrokes: number[]
+  currentDiffs: number[] | null
 }
 
 export default function RaceTrack({
@@ -16,6 +17,7 @@ export default function RaceTrack({
   playerPositions,
   playerCumulativeDiffs,
   playerTotalStrokes,
+  currentDiffs,
 }: RaceTrackProps) {
   return (
     <motion.div
@@ -76,6 +78,9 @@ export default function RaceTrack({
             positionPercent={playerPositions[index] ?? 0}
             cumulativeDiff={playerCumulativeDiffs[index] ?? 0}
             totalStrokes={playerTotalStrokes[index] ?? 0}
+            currentDiff={currentDiffs ? currentDiffs[index] : null}
+            currentScore={currentDiffs && currentHole > 0 ? player.scores[currentHole - 1] : null}
+            currentHole={currentHole}
           />
         ))}
       </div>

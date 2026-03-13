@@ -66,6 +66,7 @@ function App() {
                 playerPositions={playback.playerPositions}
                 playerCumulativeDiffs={playback.playerCumulativeDiffs}
                 playerTotalStrokes={playback.playerTotalStrokes}
+                currentDiffs={playback.currentDiffs}
               />
             )}
           </AnimatePresence>
