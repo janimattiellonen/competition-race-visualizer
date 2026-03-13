@@ -1,12 +1,13 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Phase, CompetitionData } from './types/competition'
 import { fetchCompetitionFromMetrix } from './api/metrixClient'
-import { assignPlayerColors } from './utils/colorUtils'
+import { assignDivisionColors } from './utils/colorUtils'
 import { useRacePlayback } from './hooks/useRacePlayback'
 import CompetitionForm from './components/CompetitionForm'
 import CountdownOverlay from './components/CountdownOverlay'
 import RaceTrack from './components/RaceTrack'
+import ResultsScreen from './components/ResultsScreen'
 import './App.css'
 
 function App() {
@@ -17,15 +18,22 @@ function App() {
 
   const playback = useRacePlayback(competitionData, phase === 'race')
 
+  // Transition to results when race completes
+  useEffect(() => {
+    if (playback.isComplete && phase === 'race') {
+      const timer = setTimeout(() => {
+        setPhase('results')
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+  }, [playback.isComplete, phase])
+
   const handleSubmit = useCallback(async (competitionId: number) => {
     setIsLoading(true)
     setError(null)
     try {
       const data = await fetchCompetitionFromMetrix(competitionId)
-      const colors = assignPlayerColors(data.players.length)
-      data.players.forEach((player, i) => {
-        player.color = colors[i]
-      })
+      assignDivisionColors(data.divisions)
       setCompetitionData(data)
       setPhase('countdown')
     } catch (err) {
@@ -37,6 +45,11 @@ function App() {
 
   const handleCountdownComplete = useCallback(() => {
     setPhase('race')
+  }, [])
+
+  const handleBack = useCallback(() => {
+    setPhase('form')
+    setCompetitionData(null)
   }, [])
 
   return (
@@ -63,10 +76,15 @@ function App() {
                 key="race"
                 competition={competitionData}
                 currentHole={playback.currentHole}
-                playerPositions={playback.playerPositions}
-                playerCumulativeDiffs={playback.playerCumulativeDiffs}
-                playerTotalStrokes={playback.playerTotalStrokes}
-                currentDiffs={playback.currentDiffs}
+                divisions={playback.divisions}
+              />
+            )}
+
+            {phase === 'results' && competitionData && (
+              <ResultsScreen
+                key="results"
+                competition={competitionData}
+                onBack={handleBack}
               />
             )}
           </AnimatePresence>

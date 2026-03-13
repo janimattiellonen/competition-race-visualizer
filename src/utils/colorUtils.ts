@@ -44,3 +44,12 @@ export function assignPlayerColors(count: number): string[] {
 
   return colors
 }
+
+export function assignDivisionColors(divisions: { players: { color: string }[] }[]): void {
+  for (const division of divisions) {
+    const colors = assignPlayerColors(division.players.length)
+    division.players.forEach((player, i) => {
+      player.color = colors[i]
+    })
+  }
+}

@@ -1,24 +1,28 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import type { CompetitionData } from '../types/competition'
+import type { CompetitionData, PlayerData } from '../types/competition'
 
 const SPEED_MULTIPLIER = 0.2
 const HOLE_DELAY = 600
 const INITIAL_DELAY = 800
 
-export interface RacePlaybackState {
-  currentHole: number
+export interface DivisionPlaybackState {
   playerPositions: number[]
   playerCumulativeDiffs: number[]
   playerTotalStrokes: number[]
   currentDiffs: number[] | null
+}
+
+export interface RacePlaybackState {
+  currentHole: number
+  divisions: DivisionPlaybackState[]
   isComplete: boolean
 }
 
-function computePositions(
-  competition: CompetitionData,
+function computePlayerPositions(
+  players: PlayerData[],
+  totalHoles: number,
   upToHole: number,
 ): { positions: number[]; cumulativeDiffs: number[]; totalStrokes: number[] } {
-  const { players, totalHoles } = competition
   const baseIncrement = 100 / totalHoles
 
   const positions: number[] = []
@@ -51,16 +55,17 @@ export function useRacePlayback(
   active: boolean,
 ): RacePlaybackState & { skip: () => void } {
   const [currentHole, setCurrentHole] = useState(0)
-  const [currentDiffs, setCurrentDiffs] = useState<number[] | null>(null)
+  const [currentDiffsMap, setCurrentDiffsMap] = useState<(number[] | null)[]>([])
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const skippedRef = useRef(false)
 
   const totalHoles = competition?.totalHoles ?? 0
+  const divisionCount = competition?.divisions.length ?? 0
 
   // Reset when competition changes
   useEffect(() => {
     setCurrentHole(0)
-    setCurrentDiffs(null)
+    setCurrentDiffsMap([])
     skippedRef.current = false
   }, [competition])
 
@@ -75,13 +80,15 @@ export function useRacePlayback(
       const nextHole = currentHole + 1
       setCurrentHole(nextHole)
 
-      // Show current diffs for this hole
-      const diffs = competition.players.map(p => p.diffs[nextHole - 1])
-      setCurrentDiffs(diffs)
+      // Show current diffs for each division
+      const diffs = competition.divisions.map(div =>
+        div.players.map(p => p.diffs[nextHole - 1])
+      )
+      setCurrentDiffsMap(diffs)
 
       // Clear diffs after a brief display
       setTimeout(() => {
-        setCurrentDiffs(null)
+        setCurrentDiffsMap(competition.divisions.map(() => null))
       }, HOLE_DELAY * 0.8)
     }, delay)
 
@@ -95,19 +102,33 @@ export function useRacePlayback(
     skippedRef.current = true
     if (timerRef.current) clearTimeout(timerRef.current)
     setCurrentHole(totalHoles)
-    setCurrentDiffs(null)
+    setCurrentDiffsMap(competition.divisions.map(() => null))
   }, [competition, totalHoles])
 
-  const { positions, cumulativeDiffs, totalStrokes } = competition
-    ? computePositions(competition, currentHole)
-    : { positions: [], cumulativeDiffs: [], totalStrokes: [] }
+  const divisions: DivisionPlaybackState[] = competition
+    ? competition.divisions.map((div, divIdx) => {
+        const { positions, cumulativeDiffs, totalStrokes } = computePlayerPositions(
+          div.players,
+          totalHoles,
+          currentHole,
+        )
+        return {
+          playerPositions: positions,
+          playerCumulativeDiffs: cumulativeDiffs,
+          playerTotalStrokes: totalStrokes,
+          currentDiffs: divIdx < currentDiffsMap.length ? currentDiffsMap[divIdx] : null,
+        }
+      })
+    : Array.from({ length: divisionCount }, () => ({
+        playerPositions: [],
+        playerCumulativeDiffs: [],
+        playerTotalStrokes: [],
+        currentDiffs: null,
+      }))
 
   return {
     currentHole,
-    playerPositions: positions,
-    playerCumulativeDiffs: cumulativeDiffs,
-    playerTotalStrokes: totalStrokes,
-    currentDiffs,
+    divisions,
     isComplete: currentHole >= totalHoles && totalHoles > 0,
     skip,
   }

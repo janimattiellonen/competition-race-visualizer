@@ -4,8 +4,14 @@ export interface PlayerData {
   id: string
   name: string
   color: string
+  className: string
   scores: number[]
   diffs: number[]
+}
+
+export interface DivisionData {
+  className: string
+  players: PlayerData[]
 }
 
 export interface CompetitionData {
@@ -13,6 +19,6 @@ export interface CompetitionData {
   courseName: string
   totalHoles: number
   pars: number[]
-  players: PlayerData[]
+  divisions: DivisionData[]
   metrixUrl?: string
 }

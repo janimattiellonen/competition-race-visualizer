@@ -1,23 +1,18 @@
 import { motion } from 'framer-motion'
 import type { CompetitionData } from '../types/competition'
+import type { DivisionPlaybackState } from '../hooks/useRacePlayback'
 import PlayerRow from './PlayerRow'
 
 interface RaceTrackProps {
   competition: CompetitionData
   currentHole: number
-  playerPositions: number[]
-  playerCumulativeDiffs: number[]
-  playerTotalStrokes: number[]
-  currentDiffs: number[] | null
+  divisions: DivisionPlaybackState[]
 }
 
 export default function RaceTrack({
   competition,
   currentHole,
-  playerPositions,
-  playerCumulativeDiffs,
-  playerTotalStrokes,
-  currentDiffs,
+  divisions,
 }: RaceTrackProps) {
   return (
     <motion.div
@@ -60,29 +55,57 @@ export default function RaceTrack({
         </div>
       </div>
 
-      {/* Player rows */}
+      {/* Divisions */}
       <div style={{
         flex: 1,
         overflowY: 'auto',
         overflowX: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
         paddingRight: 4,
       }}>
-        {competition.players.map((player, index) => (
-          <PlayerRow
-            key={player.id}
-            name={player.name}
-            color={player.color}
-            positionPercent={playerPositions[index] ?? 0}
-            cumulativeDiff={playerCumulativeDiffs[index] ?? 0}
-            totalStrokes={playerTotalStrokes[index] ?? 0}
-            currentDiff={currentDiffs ? currentDiffs[index] : null}
-            currentScore={currentDiffs && currentHole > 0 ? player.scores[currentHole - 1] : null}
-            currentHole={currentHole}
-          />
-        ))}
+        {competition.divisions.map((division, divIdx) => {
+          const divState = divisions[divIdx]
+          if (!divState) return null
+
+          return (
+            <div key={division.className} style={{ marginBottom: 12 }}>
+              {/* Division header */}
+              <div style={{
+                fontFamily: 'var(--font-retro)',
+                fontSize: '8px',
+                color: 'var(--color-yellow)',
+                textShadow: '0 0 4px var(--color-yellow)',
+                letterSpacing: '2px',
+                marginBottom: 4,
+                paddingLeft: 150,
+                borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
+                paddingBottom: 3,
+              }}>
+                {division.className.toUpperCase()}
+              </div>
+
+              {/* Player rows */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+              }}>
+                {division.players.map((player, playerIdx) => (
+                  <PlayerRow
+                    key={player.id}
+                    name={player.name}
+                    color={player.color}
+                    positionPercent={divState.playerPositions[playerIdx] ?? 0}
+                    cumulativeDiff={divState.playerCumulativeDiffs[playerIdx] ?? 0}
+                    totalStrokes={divState.playerTotalStrokes[playerIdx] ?? 0}
+                    currentDiff={divState.currentDiffs ? divState.currentDiffs[playerIdx] : null}
+                    currentScore={divState.currentDiffs && currentHole > 0 ? player.scores[currentHole - 1] : null}
+                    currentHole={currentHole}
+                  />
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </div>
     </motion.div>
   )

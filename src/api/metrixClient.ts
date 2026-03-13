@@ -1,4 +1,4 @@
-import type { CompetitionData } from '../types/competition'
+import type { CompetitionData, DivisionData } from '../types/competition'
 
 interface MetrixPlayerResult {
   Result: string
@@ -8,6 +8,7 @@ interface MetrixPlayerResult {
 interface MetrixResult {
   UserID: string
   Name: string
+  ClassName: string
   PlayerResults: MetrixPlayerResult[]
   Place: number
 }
@@ -50,36 +51,49 @@ export async function fetchCompetitionFromMetrix(competitionId: number): Promise
   const pars = Tracks.map(t => parseInt(t.Par, 10))
   const totalHoles = pars.length
 
-  const players = Results
+  const validResults = Results
     .filter(result => {
       if (!result.PlayerResults || result.PlayerResults.length === 0) return false
       const validScores = result.PlayerResults.filter(pr => pr.Result && pr.Result !== '0' && pr.Result !== '')
       return validScores.length === totalHoles
     })
     .sort((a, b) => a.Place - b.Place)
-    .map(result => {
-      const scores = result.PlayerResults.map(pr => parseInt(pr.Result, 10))
-      const diffs = scores.map((score, i) => score - pars[i])
 
-      return {
-        id: result.UserID,
-        name: result.Name,
-        color: '',
-        scores,
-        diffs,
-      }
-    })
-
-  if (players.length === 0) {
+  if (validResults.length === 0) {
     throw new Error('No players with complete results found')
   }
+
+  // Group by ClassName
+  const divisionMap = new Map<string, DivisionData>()
+
+  for (const result of validResults) {
+    const className = result.ClassName || 'Open'
+
+    if (!divisionMap.has(className)) {
+      divisionMap.set(className, { className, players: [] })
+    }
+
+    const scores = result.PlayerResults.map(pr => parseInt(pr.Result, 10))
+    const diffs = scores.map((score, i) => score - pars[i])
+
+    divisionMap.get(className)!.players.push({
+      id: result.UserID,
+      name: result.Name,
+      color: '',
+      className,
+      scores,
+      diffs,
+    })
+  }
+
+  const divisions = Array.from(divisionMap.values())
 
   return {
     name: Name,
     courseName: CourseName,
     totalHoles,
     pars,
-    players,
+    divisions,
     metrixUrl: `https://discgolfmetrix.com/${competitionId}`,
   }
 }
