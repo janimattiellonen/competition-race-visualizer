@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
-import { AnimatePresence, LayoutGroup } from 'framer-motion'
+import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import type { Phase, CompetitionData } from './types/competition'
 import { fetchCompetitionFromMetrix } from './api/metrixClient'
 import { assignPlayerColors } from './utils/colorUtils'
 import CompetitionForm from './components/CompetitionForm'
+import CountdownOverlay from './components/CountdownOverlay'
 import './App.css'
 
 function App() {
@@ -30,6 +31,10 @@ function App() {
     }
   }, [])
 
+  const handleCountdownComplete = useCallback(() => {
+    setPhase('race')
+  }, [])
+
   return (
     <div className="app">
       <div className="scanline" />
@@ -45,21 +50,33 @@ function App() {
               />
             )}
 
-            {phase === 'countdown' && competitionData && (
-              <div key="countdown" style={{
-                fontFamily: 'var(--font-retro)',
-                fontSize: '14px',
-                color: 'var(--color-cyan)',
-                textShadow: 'var(--text-glow-cyan)',
-                textAlign: 'center',
-                lineHeight: '2.5',
-              }}>
-                <div style={{ fontSize: '18px', marginBottom: '16px' }}>DATA LOADED</div>
-                <div>{competitionData.name}</div>
-                <div style={{ color: 'var(--color-purple)', fontSize: '11px' }}>
+            {phase === 'countdown' && (
+              <CountdownOverlay key="countdown" onComplete={handleCountdownComplete} />
+            )}
+
+            {phase === 'race' && competitionData && (
+              <motion.div
+                key="race"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                style={{
+                  fontFamily: 'var(--font-retro)',
+                  fontSize: '14px',
+                  color: 'var(--color-cyan)',
+                  textShadow: 'var(--text-glow-cyan)',
+                  textAlign: 'center',
+                  lineHeight: '2.5',
+                }}
+              >
+                <div style={{ fontSize: '18px', marginBottom: '16px' }}>RACE</div>
+                <div style={{ fontSize: '11px', color: 'var(--color-purple)' }}>
+                  {competitionData.name}
+                </div>
+                <div style={{ fontSize: '10px', color: 'var(--color-pink)' }}>
                   {competitionData.players.length} players / {competitionData.totalHoles} holes
                 </div>
-              </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </LayoutGroup>
