@@ -1,8 +1,9 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Phase, CompetitionData } from './types/competition'
 import { fetchCompetitionFromMetrix } from './api/metrixClient'
 import { assignPlayerColors } from './utils/colorUtils'
+import { useRacePlayback } from './hooks/useRacePlayback'
 import CompetitionForm from './components/CompetitionForm'
 import CountdownOverlay from './components/CountdownOverlay'
 import RaceTrack from './components/RaceTrack'
@@ -13,6 +14,8 @@ function App() {
   const [competitionData, setCompetitionData] = useState<CompetitionData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const playback = useRacePlayback(competitionData, phase === 'race')
 
   const handleSubmit = useCallback(async (competitionId: number) => {
     setIsLoading(true)
@@ -35,11 +38,6 @@ function App() {
   const handleCountdownComplete = useCallback(() => {
     setPhase('race')
   }, [])
-
-  const playerCount = competitionData?.players.length ?? 0
-  const initialPositions = useMemo(() => new Array(playerCount).fill(0), [playerCount])
-  const initialDiffs = useMemo(() => new Array(playerCount).fill(0), [playerCount])
-  const initialStrokes = useMemo(() => new Array(playerCount).fill(0), [playerCount])
 
   return (
     <div className="app">
@@ -64,10 +62,10 @@ function App() {
               <RaceTrack
                 key="race"
                 competition={competitionData}
-                currentHole={0}
-                playerPositions={initialPositions}
-                playerCumulativeDiffs={initialDiffs}
-                playerTotalStrokes={initialStrokes}
+                currentHole={playback.currentHole}
+                playerPositions={playback.playerPositions}
+                playerCumulativeDiffs={playback.playerCumulativeDiffs}
+                playerTotalStrokes={playback.playerTotalStrokes}
               />
             )}
           </AnimatePresence>
