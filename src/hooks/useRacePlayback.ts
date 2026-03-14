@@ -2,8 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { CompetitionData, PlayerData } from '../types/competition'
 
 const SPEED_MULTIPLIER = 0.2
-const HOLE_DELAY = 600
 const INITIAL_DELAY = 800
+const SCORE_DISPLAY_MS = 400
+// How many holes per second the race advances
+const HOLES_PER_SECOND = 2
 
 export interface DivisionPlaybackState {
   playerPositions: number[]
@@ -18,31 +20,63 @@ export interface RacePlaybackState {
   isComplete: boolean
 }
 
-function computePlayerPositions(
+function computePlayerPositionAtHole(
+  player: PlayerData,
+  totalHoles: number,
+  hole: number,
+): number {
+  const baseIncrement = 100 / totalHoles
+  let position = 0
+
+  for (let h = 0; h < hole; h++) {
+    const diff = player.diffs[h]
+    const speedBonus = -diff * baseIncrement * SPEED_MULTIPLIER
+    position += baseIncrement + speedBonus
+  }
+
+  return position
+}
+
+function computePlayerPositionSmooth(
+  player: PlayerData,
+  totalHoles: number,
+  progress: number,
+): number {
+  const currentHole = Math.floor(progress)
+  const fraction = progress - currentHole
+
+  const posAtCurrent = computePlayerPositionAtHole(player, totalHoles, currentHole)
+
+  if (fraction === 0 || currentHole >= totalHoles) {
+    return Math.max(0, Math.min(100, posAtCurrent))
+  }
+
+  const posAtNext = computePlayerPositionAtHole(player, totalHoles, Math.min(currentHole + 1, totalHoles))
+  const interpolated = posAtCurrent + (posAtNext - posAtCurrent) * fraction
+
+  return Math.max(0, Math.min(100, interpolated))
+}
+
+function computeDivisionState(
   players: PlayerData[],
   totalHoles: number,
-  upToHole: number,
+  progress: number,
 ): { positions: number[]; cumulativeDiffs: number[]; totalStrokes: number[] } {
-  const baseIncrement = 100 / totalHoles
+  const completedHole = Math.floor(progress)
 
   const positions: number[] = []
   const cumulativeDiffs: number[] = []
   const totalStrokes: number[] = []
 
   for (const player of players) {
-    let position = 0
+    positions.push(computePlayerPositionSmooth(player, totalHoles, progress))
+
     let cumDiff = 0
     let strokes = 0
-
-    for (let h = 0; h < upToHole; h++) {
-      const diff = player.diffs[h]
-      cumDiff += diff
+    for (let h = 0; h < completedHole; h++) {
+      cumDiff += player.diffs[h]
       strokes += player.scores[h]
-      const speedBonus = -diff * baseIncrement * SPEED_MULTIPLIER
-      position += baseIncrement + speedBonus
     }
-
-    positions.push(Math.max(0, Math.min(100, position)))
     cumulativeDiffs.push(cumDiff)
     totalStrokes.push(strokes)
   }
@@ -54,63 +88,95 @@ export function useRacePlayback(
   competition: CompetitionData | null,
   active: boolean,
 ): RacePlaybackState & { skip: () => void } {
-  const [currentHole, setCurrentHole] = useState(0)
+  const [progress, setProgress] = useState(0)
   const [currentDiffsMap, setCurrentDiffsMap] = useState<(number[] | null)[]>([])
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const rafRef = useRef<number | null>(null)
+  const startTimeRef = useRef<number | null>(null)
   const skippedRef = useRef(false)
+  const lastHoleRef = useRef(0)
+  const scoreTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const initialTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const totalHoles = competition?.totalHoles ?? 0
   const divisionCount = competition?.divisions.length ?? 0
 
   // Reset when competition changes
   useEffect(() => {
-    setCurrentHole(0)
+    setProgress(0)
     setCurrentDiffsMap([])
     skippedRef.current = false
+    lastHoleRef.current = 0
+    startTimeRef.current = null
   }, [competition])
 
-  // Advance hole by hole
+  // Continuous animation loop
   useEffect(() => {
-    if (!active || !competition || skippedRef.current) return
-    if (currentHole >= totalHoles) return
+    if (!active || !competition || skippedRef.current || totalHoles === 0) return
 
-    const delay = currentHole === 0 ? INITIAL_DELAY : HOLE_DELAY
+    const animate = (timestamp: number) => {
+      if (skippedRef.current) return
 
-    timerRef.current = setTimeout(() => {
-      const nextHole = currentHole + 1
-      setCurrentHole(nextHole)
+      if (startTimeRef.current === null) {
+        startTimeRef.current = timestamp
+      }
 
-      // Show current diffs for each division
-      const diffs = competition.divisions.map(div =>
-        div.players.map(p => p.diffs[nextHole - 1])
-      )
-      setCurrentDiffsMap(diffs)
+      const elapsed = (timestamp - startTimeRef.current) / 1000
+      const newProgress = Math.min(elapsed * HOLES_PER_SECOND, totalHoles)
 
-      // Clear diffs after a brief display
-      setTimeout(() => {
-        setCurrentDiffsMap(competition.divisions.map(() => null))
-      }, HOLE_DELAY * 0.8)
-    }, delay)
+      setProgress(newProgress)
+
+      // Detect when we cross a new hole boundary for floating scores
+      const newHole = Math.floor(newProgress)
+      if (newHole > lastHoleRef.current && newHole <= totalHoles) {
+        lastHoleRef.current = newHole
+
+        const diffs = competition.divisions.map(div =>
+          div.players.map(p => p.diffs[newHole - 1])
+        )
+        setCurrentDiffsMap(diffs)
+
+        if (scoreTimerRef.current) clearTimeout(scoreTimerRef.current)
+        scoreTimerRef.current = setTimeout(() => {
+          setCurrentDiffsMap(competition.divisions.map(() => null))
+        }, SCORE_DISPLAY_MS)
+      }
+
+      if (newProgress < totalHoles) {
+        rafRef.current = requestAnimationFrame(animate)
+      }
+    }
+
+    // Initial delay before starting animation
+    initialTimerRef.current = setTimeout(() => {
+      rafRef.current = requestAnimationFrame(animate)
+    }, INITIAL_DELAY)
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
+      if (initialTimerRef.current) clearTimeout(initialTimerRef.current)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      if (scoreTimerRef.current) clearTimeout(scoreTimerRef.current)
     }
-  }, [active, competition, currentHole, totalHoles])
+  }, [active, competition, totalHoles])
 
   const skip = useCallback(() => {
     if (!competition) return
     skippedRef.current = true
-    if (timerRef.current) clearTimeout(timerRef.current)
-    setCurrentHole(totalHoles)
+    if (initialTimerRef.current) clearTimeout(initialTimerRef.current)
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    if (scoreTimerRef.current) clearTimeout(scoreTimerRef.current)
+    lastHoleRef.current = totalHoles
+    setProgress(totalHoles)
     setCurrentDiffsMap(competition.divisions.map(() => null))
   }, [competition, totalHoles])
 
+  const currentHole = Math.floor(progress)
+
   const divisions: DivisionPlaybackState[] = competition
     ? competition.divisions.map((div, divIdx) => {
-        const { positions, cumulativeDiffs, totalStrokes } = computePlayerPositions(
+        const { positions, cumulativeDiffs, totalStrokes } = computeDivisionState(
           div.players,
           totalHoles,
-          currentHole,
+          progress,
         )
         return {
           playerPositions: positions,
@@ -129,7 +195,7 @@ export function useRacePlayback(
   return {
     currentHole,
     divisions,
-    isComplete: currentHole >= totalHoles && totalHoles > 0,
+    isComplete: progress >= totalHoles && totalHoles > 0,
     skip,
   }
 }
