@@ -1,29 +1,35 @@
 :root {
-  /* Core colors */
-  --color-bg: #0a0a1a;
-  --color-purple: #b026ff;
-  --color-pink: #ff2d95;
-  --color-yellow: #ffd700;
-  --color-red: #ff073a;
-  --color-cyan: #00f0ff;
-  --color-white: #f0e6ff;
+  /* Core colors - Midnight Velocity palette */
+  --color-bg: #060612;
+  --color-blue: #0088ff;
+  --color-magenta: #ff0055;
+  --color-lime: #00ff88;
+  --color-amber: #ffaa00;
+  --color-red: #ff2222;
+  --color-white: #e8eaff;
+
+  /* Semantic aliases */
+  --color-primary: var(--color-blue);
+  --color-accent: var(--color-magenta);
+  --color-highlight: var(--color-lime);
+  --color-warn: var(--color-amber);
 
   /* Neon glows */
-  --glow-purple: 0 0 10px #b026ff, 0 0 20px #b026ff, 0 0 40px #b026ff;
-  --glow-pink: 0 0 10px #ff2d95, 0 0 20px #ff2d95, 0 0 40px #ff2d95;
-  --glow-cyan: 0 0 10px #00f0ff, 0 0 20px #00f0ff, 0 0 40px #00f0ff;
-  --glow-yellow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #ffd700;
-  --glow-red: 0 0 10px #ff073a, 0 0 20px #ff073a, 0 0 40px #ff073a;
+  --glow-blue: 0 0 8px #0088ff, 0 0 20px #0088ff44;
+  --glow-magenta: 0 0 8px #ff0055, 0 0 20px #ff005544;
+  --glow-lime: 0 0 8px #00ff88, 0 0 20px #00ff8844;
+  --glow-amber: 0 0 8px #ffaa00, 0 0 20px #ffaa0044;
+  --glow-red: 0 0 8px #ff2222, 0 0 20px #ff222244;
 
   /* Text glow */
-  --text-glow-purple: 0 0 7px #b026ff, 0 0 10px #b026ff, 0 0 21px #b026ff, 0 0 42px #b026ff;
-  --text-glow-pink: 0 0 7px #ff2d95, 0 0 10px #ff2d95, 0 0 21px #ff2d95, 0 0 42px #ff2d95;
-  --text-glow-cyan: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff, 0 0 42px #00f0ff;
-  --text-glow-yellow: 0 0 7px #ffd700, 0 0 10px #ffd700, 0 0 21px #ffd700, 0 0 42px #ffd700;
+  --text-glow-blue: 0 0 6px #0088ff, 0 0 12px #0088ff88, 0 0 24px #0088ff44;
+  --text-glow-magenta: 0 0 6px #ff0055, 0 0 12px #ff005588, 0 0 24px #ff005544;
+  --text-glow-lime: 0 0 6px #00ff88, 0 0 12px #00ff8888, 0 0 24px #00ff8844;
+  --text-glow-amber: 0 0 6px #ffaa00, 0 0 12px #ffaa0088, 0 0 24px #ffaa0044;
 
   /* Fonts */
   --font-retro: 'Press Start 2P', monospace;
-  --font-tech: 'Orbitron', sans-serif;
+  --font-tech: 'Rajdhani', sans-serif;
 }
 
 * {
@@ -34,6 +40,7 @@
 
 body {
   font-family: var(--font-tech);
+  font-weight: 600;
   background: var(--color-bg);
   color: var(--color-white);
   overflow: hidden;
@@ -44,4 +51,16 @@ body {
 #root {
   width: 100%;
   height: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-blue);
+  border-radius: 2px;
 }

@@ -14,47 +14,61 @@ function getDiffText(diffs: number[]): string {
 
 function getDiffColor(diffs: number[]): string {
   const total = diffs.reduce((sum, d) => sum + d, 0)
-  if (total < 0) return '#88ff88'
-  if (total > 0) return '#ff8888'
-  return '#888888'
+  if (total < 0) return '#00ff88'
+  if (total > 0) return '#ff4466'
+  return '#667788'
 }
 
 function getTotalStrokes(scores: number[]): number {
   return scores.reduce((sum, s) => sum + s, 0)
 }
 
-const podiumColors = ['var(--color-yellow)', 'var(--color-cyan)', 'var(--color-pink)']
+const podiumColors = ['var(--color-amber)', 'var(--color-blue)', 'var(--color-magenta)']
 const podiumGlows = [
-  'var(--text-glow-yellow)',
-  'var(--text-glow-cyan)',
-  'var(--text-glow-pink)',
+  'var(--text-glow-amber)',
+  'var(--text-glow-blue)',
+  'var(--text-glow-magenta)',
 ]
 const podiumHeights = [90, 65, 50]
-const podiumOrder = [1, 0, 2] // 2nd, 1st, 3rd
+const podiumOrder = [1, 0, 2]
 
 function DivisionPodium({ division, delayBase }: { division: DivisionData; delayBase: number }) {
   const top3 = division.players.slice(0, 3)
   const rest = division.players.slice(3)
 
   return (
-    <div style={{ marginBottom: 24 }}>
+    <div style={{ marginBottom: 28 }}>
       {/* Division title */}
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: delayBase, duration: 0.4 }}
         style={{
-          fontFamily: 'var(--font-retro)',
-          fontSize: '9px',
-          color: 'var(--color-yellow)',
-          textShadow: '0 0 4px var(--color-yellow)',
-          letterSpacing: '2px',
-          marginBottom: 12,
-          borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
-          paddingBottom: 4,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 14,
+          paddingBottom: 5,
+          borderBottom: '1px solid rgba(255, 0, 85, 0.15)',
         }}
       >
-        {division.className.toUpperCase()}
+        <div style={{
+          width: 3,
+          height: 12,
+          background: 'var(--color-magenta)',
+          borderRadius: 1,
+        }} />
+        <span style={{
+          fontFamily: 'var(--font-tech)',
+          fontWeight: 700,
+          fontSize: '12px',
+          color: 'var(--color-magenta)',
+          textShadow: '0 0 4px rgba(255, 0, 85, 0.25)',
+          letterSpacing: '3px',
+          textTransform: 'uppercase',
+        }}>
+          {division.className}
+        </span>
       </motion.div>
 
       {/* Podium */}
@@ -62,8 +76,8 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
         display: 'flex',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        gap: 10,
-        marginBottom: 10,
+        gap: 12,
+        marginBottom: 12,
       }}>
         {podiumOrder.map((playerIdx, visualIdx) => {
           const player = top3[playerIdx]
@@ -85,10 +99,11 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
             >
               <div style={{
                 fontFamily: 'var(--font-tech)',
-                fontSize: '9px',
+                fontWeight: 700,
+                fontSize: '11px',
                 color: podiumColors[playerIdx],
                 textShadow: podiumGlows[playerIdx],
-                maxWidth: 100,
+                maxWidth: 110,
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap',
@@ -100,7 +115,7 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
                 fontFamily: 'var(--font-retro)',
                 fontSize: '7px',
                 color: getDiffColor(player.diffs),
-                textShadow: `0 0 3px ${getDiffColor(player.diffs)}`,
+                textShadow: `0 0 3px ${getDiffColor(player.diffs)}66`,
               }}>
                 {getDiffText(player.diffs)} ({getTotalStrokes(player.scores)})
               </div>
@@ -109,21 +124,23 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
                 animate={{ height: podiumHeights[playerIdx] }}
                 transition={{ delay: delayBase + 0.3 + visualIdx * 0.15, duration: 0.5, ease: 'easeOut' }}
                 style={{
-                  width: 80,
-                  background: `linear-gradient(180deg, ${podiumColors[playerIdx]}33 0%, ${podiumColors[playerIdx]}11 100%)`,
-                  border: `1px solid ${podiumColors[playerIdx]}66`,
+                  width: 85,
+                  background: `linear-gradient(180deg, ${podiumColors[playerIdx]}22 0%, ${podiumColors[playerIdx]}08 100%)`,
+                  borderTop: `2px solid ${podiumColors[playerIdx]}88`,
+                  borderLeft: `1px solid ${podiumColors[playerIdx]}33`,
+                  borderRight: `1px solid ${podiumColors[playerIdx]}33`,
                   borderBottom: 'none',
-                  borderRadius: '4px 4px 0 0',
+                  borderRadius: '2px 2px 0 0',
                   display: 'flex',
                   alignItems: 'flex-start',
                   justifyContent: 'center',
-                  paddingTop: 6,
+                  paddingTop: 8,
                   overflow: 'hidden',
                 }}
               >
                 <span style={{
                   fontFamily: 'var(--font-retro)',
-                  fontSize: '14px',
+                  fontSize: '16px',
                   color: podiumColors[playerIdx],
                   textShadow: podiumGlows[playerIdx],
                 }}>
@@ -145,25 +162,27 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
           style={{
             display: 'flex',
             alignItems: 'center',
-            padding: '3px 8px',
-            borderBottom: '1px solid rgba(176, 38, 255, 0.1)',
+            padding: '4px 8px',
+            borderBottom: '1px solid rgba(0, 136, 255, 0.06)',
           }}
         >
           <span style={{
-            fontFamily: 'var(--font-retro)',
-            fontSize: '7px',
-            color: 'rgba(240, 230, 255, 0.4)',
+            fontFamily: 'var(--font-tech)',
+            fontWeight: 600,
+            fontSize: '10px',
+            color: 'rgba(232, 234, 255, 0.3)',
             width: 25,
             textAlign: 'right',
-            marginRight: 8,
+            marginRight: 10,
           }}>
             {index + 4}
           </span>
           <span style={{
             fontFamily: 'var(--font-tech)',
-            fontSize: '9px',
+            fontWeight: 700,
+            fontSize: '11px',
             color: player.color,
-            textShadow: `0 0 3px ${player.color}`,
+            textShadow: `0 0 4px ${player.color}44`,
             flex: 1,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -175,17 +194,18 @@ function DivisionPodium({ division, delayBase }: { division: DivisionData; delay
             fontFamily: 'var(--font-retro)',
             fontSize: '7px',
             color: getDiffColor(player.diffs),
-            textShadow: `0 0 3px ${getDiffColor(player.diffs)}`,
+            textShadow: `0 0 3px ${getDiffColor(player.diffs)}44`,
             marginLeft: 8,
           }}>
             {getDiffText(player.diffs)}
           </span>
           <span style={{
             fontFamily: 'var(--font-tech)',
-            fontSize: '7px',
-            color: 'rgba(240, 230, 255, 0.3)',
+            fontWeight: 600,
+            fontSize: '9px',
+            color: 'rgba(232, 234, 255, 0.25)',
             marginLeft: 8,
-            minWidth: 25,
+            minWidth: 28,
             textAlign: 'right',
           }}>
             {getTotalStrokes(player.scores)}
@@ -217,16 +237,17 @@ export default function ResultsScreen({ competition, onBack }: ResultsScreenProp
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.5 }}
-        style={{
+        style={{ textAlign: 'center', marginBottom: 4 }}
+      >
+        <span style={{
           fontFamily: 'var(--font-retro)',
           fontSize: '14px',
-          color: 'var(--color-yellow)',
-          textShadow: 'var(--text-glow-yellow)',
+          color: 'var(--color-amber)',
+          textShadow: 'var(--text-glow-amber)',
           letterSpacing: '4px',
-          marginBottom: 4,
-        }}
-      >
-        RESULTS
+        }}>
+          FINAL RESULTS
+        </span>
       </motion.div>
 
       <motion.div
@@ -235,11 +256,13 @@ export default function ResultsScreen({ competition, onBack }: ResultsScreenProp
         transition={{ delay: 0.3, duration: 0.4 }}
         style={{
           fontFamily: 'var(--font-tech)',
-          fontSize: '10px',
-          color: 'var(--color-purple)',
-          textShadow: '0 0 5px var(--color-purple)',
+          fontWeight: 700,
+          fontSize: '12px',
+          color: 'var(--color-blue)',
+          textShadow: '0 0 6px rgba(0, 136, 255, 0.3)',
           letterSpacing: '2px',
           marginBottom: 16,
+          textTransform: 'uppercase',
         }}
       >
         {competition.name}
@@ -269,23 +292,24 @@ export default function ResultsScreen({ competition, onBack }: ResultsScreenProp
         transition={{ delay: 0.4 + competition.divisions.length * 0.8, duration: 0.4 }}
         onClick={onBack}
         whileHover={{
-          scale: 1.05,
-          boxShadow: '0 0 12px var(--color-purple), 0 0 24px var(--color-purple)',
+          scale: 1.03,
+          boxShadow: '0 0 15px rgba(0, 136, 255, 0.3), 0 0 30px rgba(0, 136, 255, 0.15)',
         }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.97 }}
         style={{
           fontFamily: 'var(--font-retro)',
           fontSize: '9px',
-          padding: '10px 24px',
+          padding: '10px 28px',
           marginTop: 12,
-          background: 'rgba(176, 38, 255, 0.15)',
-          color: 'var(--color-purple)',
-          border: '2px solid var(--color-purple)',
-          borderRadius: '4px',
+          background: 'rgba(0, 136, 255, 0.1)',
+          color: 'var(--color-blue)',
+          border: '1px solid rgba(0, 136, 255, 0.4)',
+          borderRadius: '2px',
           cursor: 'pointer',
-          letterSpacing: '2px',
-          boxShadow: '0 0 6px var(--color-purple)',
+          letterSpacing: '3px',
+          boxShadow: '0 0 8px rgba(0, 136, 255, 0.1)',
           flexShrink: 0,
+          textShadow: '0 0 6px rgba(0, 136, 255, 0.3)',
         }}
       >
         NEW RACE

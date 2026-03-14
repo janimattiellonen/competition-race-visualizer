@@ -33,25 +33,43 @@ export default function RaceTrack({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 14,
         flexShrink: 0,
+        paddingBottom: 8,
+        borderBottom: '1px solid rgba(0, 136, 255, 0.12)',
       }}>
         <div style={{
-          fontFamily: 'var(--font-retro)',
-          fontSize: '10px',
-          color: 'var(--color-cyan)',
-          textShadow: 'var(--text-glow-cyan)',
+          fontFamily: 'var(--font-tech)',
+          fontWeight: 700,
+          fontSize: '14px',
+          color: 'var(--color-blue)',
+          textShadow: '0 0 8px rgba(0, 136, 255, 0.3)',
           letterSpacing: '2px',
+          textTransform: 'uppercase',
         }}>
           {competition.name}
         </div>
         <div style={{
           fontFamily: 'var(--font-retro)',
           fontSize: '9px',
-          color: 'var(--color-pink)',
-          textShadow: '0 0 5px var(--color-pink)',
+          color: 'var(--color-amber)',
+          textShadow: '0 0 5px rgba(255, 170, 0, 0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
         }}>
-          HOLE {currentHole} / {competition.totalHoles}
+          <span style={{
+            fontFamily: 'var(--font-tech)',
+            fontWeight: 700,
+            fontSize: '11px',
+            color: 'var(--color-white)',
+            opacity: 0.5,
+          }}>
+            HOLE
+          </span>
+          {currentHole}
+          <span style={{ opacity: 0.4 }}>/</span>
+          <span style={{ opacity: 0.5 }}>{competition.totalHoles}</span>
         </div>
       </div>
 
@@ -67,20 +85,33 @@ export default function RaceTrack({
           if (!divState) return null
 
           return (
-            <div key={division.className} style={{ marginBottom: 12 }}>
+            <div key={division.className} style={{ marginBottom: 14 }}>
               {/* Division header */}
               <div style={{
-                fontFamily: 'var(--font-retro)',
-                fontSize: '8px',
-                color: 'var(--color-yellow)',
-                textShadow: '0 0 4px var(--color-yellow)',
-                letterSpacing: '2px',
-                marginBottom: 4,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                marginBottom: 5,
                 paddingLeft: 150,
-                borderBottom: '1px solid rgba(255, 215, 0, 0.2)',
-                paddingBottom: 3,
               }}>
-                {division.className.toUpperCase()}
+                <div style={{
+                  width: 3,
+                  height: 10,
+                  background: 'var(--color-magenta)',
+                  borderRadius: 1,
+                  boxShadow: '0 0 4px rgba(255, 0, 85, 0.4)',
+                }} />
+                <span style={{
+                  fontFamily: 'var(--font-tech)',
+                  fontWeight: 700,
+                  fontSize: '11px',
+                  color: 'var(--color-magenta)',
+                  textShadow: '0 0 4px rgba(255, 0, 85, 0.25)',
+                  letterSpacing: '3px',
+                  textTransform: 'uppercase',
+                }}>
+                  {division.className}
+                </span>
               </div>
 
               {/* Player rows */}

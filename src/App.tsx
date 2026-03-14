@@ -54,7 +54,12 @@ function App() {
 
   return (
     <div className="app">
-      <div className="scanline" />
+      <div className="noise-overlay" />
+      <div className="vignette" />
+      <div className="corner-accent corner-accent--tl" />
+      <div className="corner-accent corner-accent--tr" />
+      <div className="corner-accent corner-accent--bl" />
+      <div className="corner-accent corner-accent--br" />
       <div className="app-content">
         <LayoutGroup>
           <AnimatePresence mode="wait">

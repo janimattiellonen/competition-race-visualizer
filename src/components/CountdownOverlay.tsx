@@ -5,6 +5,12 @@ interface CountdownOverlayProps {
   onComplete: () => void
 }
 
+const countdownStyles = [
+  { color: 'var(--color-blue)', glow: 'var(--text-glow-blue)' },
+  { color: 'var(--color-amber)', glow: 'var(--text-glow-amber)' },
+  { color: 'var(--color-magenta)', glow: 'var(--text-glow-magenta)' },
+]
+
 export default function CountdownOverlay({ onComplete }: CountdownOverlayProps) {
   const [count, setCount] = useState(3)
 
@@ -21,6 +27,8 @@ export default function CountdownOverlay({ onComplete }: CountdownOverlayProps) 
     return () => clearTimeout(timer)
   }, [count, onComplete])
 
+  const style = countdownStyles[3 - count] ?? countdownStyles[0]
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -29,7 +37,7 @@ export default function CountdownOverlay({ onComplete }: CountdownOverlayProps) 
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(10, 10, 26, 0.92)',
+        background: 'rgba(6, 6, 18, 0.95)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -40,19 +48,16 @@ export default function CountdownOverlay({ onComplete }: CountdownOverlayProps) 
         {count > 0 && (
           <motion.div
             key={count}
-            initial={{ scale: 2, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.3, opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            initial={{ rotateX: 90, opacity: 0, scale: 0.8 }}
+            animate={{ rotateX: 0, opacity: 1, scale: 1 }}
+            exit={{ rotateX: -90, opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
             style={{
               fontFamily: 'var(--font-retro)',
-              fontSize: '120px',
-              color: count === 3 ? 'var(--color-cyan)' : count === 2 ? 'var(--color-yellow)' : 'var(--color-pink)',
-              textShadow: count === 3
-                ? 'var(--text-glow-cyan)'
-                : count === 2
-                  ? 'var(--text-glow-yellow)'
-                  : 'var(--text-glow-pink)',
+              fontSize: '140px',
+              color: style.color,
+              textShadow: style.glow,
+              perspective: '500px',
             }}
           >
             {count}

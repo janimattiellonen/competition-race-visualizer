@@ -5,7 +5,7 @@ interface PlayerSummaryProps {
 
 export default function PlayerSummary({ cumulativeDiff, totalStrokes }: PlayerSummaryProps) {
   const diffText = cumulativeDiff === 0 ? 'E' : cumulativeDiff > 0 ? `+${cumulativeDiff}` : `${cumulativeDiff}`
-  const diffColor = cumulativeDiff < 0 ? '#88ff88' : cumulativeDiff > 0 ? '#ff8888' : '#888888'
+  const diffColor = cumulativeDiff < 0 ? '#00ff88' : cumulativeDiff > 0 ? '#ff4466' : '#667788'
 
   return (
     <div style={{
@@ -18,16 +18,17 @@ export default function PlayerSummary({ cumulativeDiff, totalStrokes }: PlayerSu
     }}>
       <span style={{
         fontFamily: 'var(--font-retro)',
-        fontSize: '9px',
+        fontSize: '8px',
         color: diffColor,
-        textShadow: `0 0 4px ${diffColor}`,
+        textShadow: `0 0 4px ${diffColor}66`,
       }}>
         {diffText}
       </span>
       <span style={{
         fontFamily: 'var(--font-tech)',
-        fontSize: '9px',
-        color: 'rgba(240, 230, 255, 0.4)',
+        fontWeight: 600,
+        fontSize: '10px',
+        color: 'rgba(232, 234, 255, 0.3)',
         marginTop: 2,
       }}>
         {totalStrokes}

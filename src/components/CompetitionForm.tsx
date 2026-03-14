@@ -36,24 +36,29 @@ function parseMetrixId(input: string): number | null {
 
 const inputStyle: React.CSSProperties = {
   fontFamily: 'var(--font-tech)',
-  fontSize: '14px',
+  fontWeight: 600,
+  fontSize: '16px',
   padding: '12px 16px',
-  background: 'rgba(10, 10, 26, 0.9)',
+  background: 'rgba(6, 6, 18, 0.8)',
   color: 'var(--color-white)',
-  border: '2px solid var(--color-purple)',
-  borderRadius: '4px',
+  border: '1px solid rgba(0, 136, 255, 0.4)',
+  borderLeft: '3px solid var(--color-blue)',
+  borderRadius: '2px',
   outline: 'none',
   width: '100%',
-  boxShadow: '0 0 5px rgba(176, 38, 255, 0.3)',
+  boxShadow: 'inset 0 0 20px rgba(0, 136, 255, 0.05)',
   transition: 'border-color 0.3s, box-shadow 0.3s',
+  letterSpacing: '1px',
 }
 
 const labelStyle: React.CSSProperties = {
-  fontFamily: 'var(--font-retro)',
-  fontSize: '9px',
-  color: 'var(--color-purple)',
-  textShadow: '0 0 5px var(--color-purple)',
-  letterSpacing: '2px',
+  fontFamily: 'var(--font-tech)',
+  fontWeight: 700,
+  fontSize: '11px',
+  color: 'var(--color-blue)',
+  textShadow: '0 0 5px rgba(0, 136, 255, 0.3)',
+  letterSpacing: '3px',
+  textTransform: 'uppercase',
   marginBottom: '8px',
   display: 'block',
 }
@@ -94,42 +99,46 @@ export default function CompetitionForm({ onSubmit, isLoading, error }: Competit
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        maxWidth: '500px',
+        maxWidth: '480px',
         padding: '40px 24px',
         position: 'relative',
       }}
     >
-      <motion.h2
-        initial={{ opacity: 0, y: -10 }}
+      {/* Title block */}
+      <motion.div
+        initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        style={{
+        transition={{ delay: 0.1, duration: 0.5 }}
+        style={{ textAlign: 'center', marginBottom: '32px' }}
+      >
+        <div style={{
           fontFamily: 'var(--font-retro)',
-          fontSize: '16px',
-          color: 'var(--color-cyan)',
-          textShadow: 'var(--text-glow-cyan)',
-          marginBottom: '12px',
-          letterSpacing: '3px',
-        }}
-      >
-        RACE VISUALIZER
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
-        style={{
+          fontSize: '18px',
+          color: 'var(--color-blue)',
+          textShadow: 'var(--text-glow-blue)',
+          letterSpacing: '4px',
+          marginBottom: '8px',
+        }}>
+          VELOCITY
+        </div>
+        <div style={{
           fontFamily: 'var(--font-tech)',
-          fontSize: '12px',
-          color: 'var(--color-purple)',
-          textShadow: '0 0 5px var(--color-purple)',
-          marginBottom: '32px',
-          letterSpacing: '2px',
-        }}
-      >
-        DISC GOLF COMPETITION
-      </motion.p>
+          fontWeight: 700,
+          fontSize: '13px',
+          color: 'var(--color-magenta)',
+          textShadow: '0 0 8px rgba(255, 0, 85, 0.4)',
+          letterSpacing: '6px',
+          textTransform: 'uppercase',
+        }}>
+          Race Visualizer
+        </div>
+        <div style={{
+          width: '60px',
+          height: '2px',
+          background: 'linear-gradient(90deg, transparent, var(--color-blue), transparent)',
+          margin: '12px auto 0',
+        }} />
+      </motion.div>
 
       <motion.form
         onSubmit={handleSubmit}
@@ -139,17 +148,18 @@ export default function CompetitionForm({ onSubmit, isLoading, error }: Competit
         style={{
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
+          gap: '20px',
           width: '100%',
-          padding: '32px',
-          background: 'rgba(10, 10, 26, 0.7)',
-          border: '1px solid rgba(176, 38, 255, 0.3)',
-          borderRadius: '8px',
-          boxShadow: '0 0 20px rgba(176, 38, 255, 0.1)',
+          padding: '28px',
+          background: 'rgba(6, 6, 18, 0.6)',
+          border: '1px solid rgba(0, 136, 255, 0.15)',
+          borderRadius: '3px',
+          boxShadow: '0 0 30px rgba(0, 136, 255, 0.05)',
+          backdropFilter: 'blur(10px)',
         }}
       >
         <div>
-          <label style={labelStyle}>METRIX URL OR ID</label>
+          <label style={labelStyle}>Competition</label>
           <input
             type="text"
             value={metrixInput}
@@ -157,59 +167,65 @@ export default function CompetitionForm({ onSubmit, isLoading, error }: Competit
               setMetrixInput(e.target.value)
               setValidationError(null)
             }}
-            placeholder="e.g. 3541752 or discgolfmetrix.com/3541752"
+            placeholder="Metrix ID or URL"
             disabled={isLoading}
             style={inputStyle}
             onFocus={(e) => {
-              e.target.style.borderColor = 'var(--color-cyan)'
-              e.target.style.boxShadow = '0 0 10px rgba(0, 240, 255, 0.4)'
+              e.target.style.borderColor = 'var(--color-lime)'
+              e.target.style.borderLeftColor = 'var(--color-lime)'
+              e.target.style.boxShadow = 'inset 0 0 20px rgba(0, 255, 136, 0.08), 0 0 10px rgba(0, 255, 136, 0.15)'
             }}
             onBlur={(e) => {
-              e.target.style.borderColor = 'var(--color-purple)'
-              e.target.style.boxShadow = '0 0 5px rgba(176, 38, 255, 0.3)'
+              e.target.style.borderColor = 'rgba(0, 136, 255, 0.4)'
+              e.target.style.borderLeftColor = 'var(--color-blue)'
+              e.target.style.boxShadow = 'inset 0 0 20px rgba(0, 136, 255, 0.05)'
             }}
           />
         </div>
 
         {displayError && (
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, x: -5 }}
+            animate={{ opacity: 1, x: 0 }}
             style={{
-              fontFamily: 'var(--font-retro)',
-              fontSize: '8px',
+              fontFamily: 'var(--font-tech)',
+              fontWeight: 600,
+              fontSize: '12px',
               color: 'var(--color-red)',
-              textShadow: '0 0 5px var(--color-red)',
-              lineHeight: '1.6',
+              textShadow: '0 0 5px rgba(255, 34, 34, 0.3)',
+              lineHeight: '1.5',
+              paddingLeft: '8px',
+              borderLeft: '2px solid var(--color-red)',
             }}
           >
             {displayError}
           </motion.p>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '4px' }}>
           <motion.button
             type="submit"
             disabled={isLoading}
             whileHover={{
-              scale: 1.05,
-              boxShadow: '0 0 20px #ff2d95, 0 0 40px #ff2d95, 0 0 60px #b026ff',
+              scale: 1.03,
+              boxShadow: '0 0 20px rgba(0, 255, 136, 0.3), 0 0 40px rgba(0, 255, 136, 0.15)',
             }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.97 }}
             style={{
               fontFamily: 'var(--font-retro)',
-              fontSize: '12px',
-              padding: '14px 40px',
+              fontSize: '11px',
+              padding: '14px 48px',
               background: isLoading
-                ? 'rgba(176, 38, 255, 0.3)'
-                : 'linear-gradient(135deg, #b026ff 0%, #ff2d95 100%)',
-              color: '#fff',
-              border: '2px solid #ff2d95',
-              borderRadius: '4px',
+                ? 'rgba(0, 255, 136, 0.15)'
+                : 'linear-gradient(135deg, rgba(0, 255, 136, 0.2) 0%, rgba(0, 136, 255, 0.2) 100%)',
+              color: 'var(--color-lime)',
+              border: '1px solid rgba(0, 255, 136, 0.5)',
+              borderRadius: '2px',
               cursor: isLoading ? 'wait' : 'pointer',
-              letterSpacing: '3px',
-              boxShadow: '0 0 10px #ff2d95, 0 0 20px #b026ff',
-              opacity: isLoading ? 0.7 : 1,
+              letterSpacing: '4px',
+              boxShadow: '0 0 10px rgba(0, 255, 136, 0.15)',
+              opacity: isLoading ? 0.6 : 1,
+              textShadow: '0 0 8px rgba(0, 255, 136, 0.5)',
             }}
           >
             {isLoading ? 'LOADING...' : 'BEGIN'}

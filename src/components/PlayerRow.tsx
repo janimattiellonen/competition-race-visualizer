@@ -37,13 +37,15 @@ export default function PlayerRow({
         minWidth: 150,
         paddingRight: 10,
         fontFamily: 'var(--font-tech)',
-        fontSize: '10px',
+        fontWeight: 700,
+        fontSize: '12px',
         color: color,
-        textShadow: `0 0 4px ${color}`,
+        textShadow: `0 0 6px ${color}44`,
         overflow: 'hidden',
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         textAlign: 'right',
+        letterSpacing: '0.5px',
       }}>
         {name}
       </div>
@@ -54,15 +56,16 @@ export default function PlayerRow({
         position: 'relative',
         height: '100%',
       }}>
-        {/* Track line */}
+        {/* Dashed track line */}
         <div style={{
           position: 'absolute',
           top: '50%',
           left: 0,
           right: 0,
           height: 1,
-          background: 'rgba(176, 38, 255, 0.2)',
+          backgroundImage: 'repeating-linear-gradient(90deg, rgba(0, 136, 255, 0.2) 0px, rgba(0, 136, 255, 0.2) 4px, transparent 4px, transparent 10px)',
           transform: 'translateY(-50%)',
+          animation: 'dashScroll 1.5s linear infinite',
         }} />
 
         {/* Player dot with floating score */}
